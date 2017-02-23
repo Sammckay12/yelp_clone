@@ -6,6 +6,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'spec_helper'
 require 'rspec/rails'
 require 'capybara/rails'
+require 'helpers/user_helper'
 
 # Add additional requires below this line. Rails is not loaded until this point!
 
@@ -27,15 +28,15 @@ require 'capybara/rails'
 # Checks for pending migration and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.maintain_test_schema!
-
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    # Choose a test framework:
-    with.test_framework :rspec
-    # Or, choose the following (which implies all of the above):
-    with.library :rails
-  end
-end
+#
+# Shoulda::Matchers.configure do |config|
+#   config.integrate do |with|
+#     # Choose a test framework:
+#     with.test_framework :rspec
+#     # Or, choose the following (which implies all of the above):
+#     with.library :rails
+#   end
+# end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures

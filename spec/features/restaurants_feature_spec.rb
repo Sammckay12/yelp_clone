@@ -1,9 +1,13 @@
 require 'rails_helper'
 
 feature 'restaurants' do
+  before do
+    sign_in
+  end
   context 'restaurants have been added' do
     before do
-      Restaurant.create(name: 'KFC')
+      @user = User.create(email: 'test@test.com', password: 'test123')
+      Restaurant.create(name: 'KFC', user: @user)
     end
 
     scenario 'display restaurants' do
@@ -25,25 +29,17 @@ feature 'restaurants' do
       User.create(email: 'test@test.com', password: 'test123')
     end
       scenario 'prompts user to fill out a form, then displays the new restaurant' do
-      visit '/'
-      click_link 'Sign in'
-      fill_in 'Email', with: 'test@test.com'
-      fill_in 'Password', with: 'test123'
-      click_button 'Log in'
-      click_link 'Add a restaurant'
-      fill_in 'Name', with: 'KFC'
-      fill_in 'Description', with: "Finger lickin' chicken"
-      click_button 'Create Restaurant'
-      expect(page).to have_content 'KFC'
-      expect(current_path).to eq '/restaurants'
+        sign_in
+        click_link 'Add a restaurant'
+        fill_in 'Name', with: 'KFC'
+        fill_in 'Description', with: "Finger lickin' chicken"
+        click_button 'Create Restaurant'
+        expect(page).to have_content 'KFC'
+        expect(current_path).to eq '/restaurants'
       end
 
       scenario 'the app does not let you submit a name that is too short' do
-        visit '/'
-        click_link 'Sign in'
-        fill_in 'Email', with: 'test@test.com'
-        fill_in 'Password', with: 'test123'
-        click_button 'Log in'
+        sign_in
         click_link 'Add a restaurant'
         fill_in 'Name', with: 'kf'
         click_button 'Create Restaurant'
@@ -53,14 +49,17 @@ feature 'restaurants' do
   end
 
   context 'viewing restaurants' do
+    before do
+      @user = User.create(email: 'test@test.com', password: 'test123')
+    end
 
-    let!(:kfc){ Restaurant.create(name:'KFC') }
+    let!(:kfc){ @user.restaurants.create(name:'KFC') }
 
     scenario 'lets a user view a restaurant' do
-     visit '/restaurants'
-     click_link 'KFC'
-     expect(page).to have_content 'KFC'
-     expect(current_path).to eq "/restaurants/#{kfc.id}"
+      visit '/'
+      click_link 'KFC'
+      expect(page).to have_content 'KFC'
+      expect(current_path).to eq "/restaurants/#{kfc.id}"
     end
 
   end
@@ -68,16 +67,12 @@ feature 'restaurants' do
   context 'editing restaurants' do
 
     before do
-       Restaurant.create name: 'KFC', description: 'Deep fried goodness', id: 1
-       User.create(email: 'test@test.com', password: 'test123')
+      @user = User.create(email: 'test@test.com', password: 'test123')
+      @restaurant = Restaurant.create(name: 'KFC', user: @user)
     end
 
     scenario 'let a user edit a restaurant' do
-      visit '/'
-      click_link 'Sign in'
-      fill_in 'Email', with: 'test@test.com'
-      fill_in 'Password', with: 'test123'
-      click_button 'Log in'
+      sign_in
       click_link 'Edit KFC'
       fill_in 'Name', with: 'Kentucky Fried Chicken'
       fill_in 'Description', with: 'Deep fried goodness'
@@ -85,26 +80,22 @@ feature 'restaurants' do
       click_link 'Kentucky Fried Chicken'
       expect(page).to have_content 'Kentucky Fried Chicken'
       expect(page).to have_content 'Deep fried goodness'
-      expect(current_path).to eq '/restaurants/1'
+      expect(current_path).to eq "/restaurants/#{@restaurant.id}"
     end
   end
 
   context 'deleting restaurants' do
 
     before do
-      Restaurant.create name: 'KFC', description: 'Deep fried goodness'
-      User.create(email: 'test@test.com', password: 'test123')
+      @user = User.create(email: 'test@test.com', password: 'test123')
+      @restaurant = Restaurant.create(name: 'KFC', description: 'Deep fried goodness', user: @user)
     end
 
     scenario 'removes a restaurant when a user clicks a delete link' do
-      visit '/'
-      click_link 'Sign in'
-      fill_in 'Email', with: 'test@test.com'
-      fill_in 'Password', with: 'test123'
-      click_button 'Log in'
+      sign_in
       click_link 'Delete KFC'
       expect(page).not_to have_content 'KFC'
-      expect(page).to have_content 'Restaurant deleted successfully'
+      expect(page).to have_content 'You have deleted restaurant successfully'
     end
 
   end
